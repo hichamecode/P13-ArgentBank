@@ -1,11 +1,9 @@
 @import ".././styles/variables";
 
 
-
 main {
       flex: 1;
     }
-
 
 
 .bg-dark {
@@ -37,6 +35,12 @@ main {
                   & input {
                         padding: 5px;
                         font-size: 1.2rem;
+                  }
+
+                  .error-text {
+                        color: $button-color;
+                        font-size: 0.8rem;
+                        padding-top: 5px;
                   }
             }
 
