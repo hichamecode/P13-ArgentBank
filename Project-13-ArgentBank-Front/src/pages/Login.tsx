@@ -2,25 +2,31 @@ import './Login.scss'
 import Layout from '../components/Layout';
 import { useNavigate } from "react-router-dom";
 import { SubmitHandler, useForm } from 'react-hook-form';
-
-
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 function Login() {
 
       const navigate = useNavigate();
-      const handleSub = (e: React.FormEvent) => {
-            e.preventDefault();
+
+      const schema = z.object({
+            email: z.string().email({message: 'The email format is invalid'}),
+            password: z.string().min(8, {message: 'The password must be at least 8 characters long' }),
+      });
+ 
+      type FormFields = z.infer<typeof schema>
+
+      const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormFields>({
+            resolver: zodResolver(schema)
+      });
+
+      const onSubmit: SubmitHandler<FormFields> = async data => {
+
+            console.log(data);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             navigate('/login/profile');
+
       }
-
-      type FormFields = {
-            email: string;
-            password: string;
-      }
-
-      const { register, handleSubmit, formState: { errors } } = useForm<FormFields>();
-      const onSubmit: SubmitHandler<FormFields> = data => console.log(data);
-
 
       return (
             <Layout>
@@ -32,25 +38,21 @@ function Login() {
                               <form onSubmit={handleSubmit(onSubmit)}>
                                     <div className="input-wrapper">
                                           <label htmlFor="username" >Username</label>
-                                          <input {...register("email", {
-                                                required: true,
-                                                pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
-                                          })} type="text" id="username" />
-                                          {errors.email && <span className='error-text'>the username has an invalid format</span>}
+                                          <input {...register("email")} type="text" id="username" />
+                                          {errors.email && <span className='error-text'>{errors.email.message}</span>}
                                     </div>
                                     <div className="input-wrapper">
                                           <label htmlFor="password">Password</label
-                                          ><input {...register("password", {
-                                                required: true,
-                                                minLength: 6
-                                          })}  type="password" id="password" />
-                                          {errors.password && <span className='error-text'>the password must have at least 6 characters</span>}
+                                          ><input {...register("password")} type="password" id="password" />
+                                          {errors.password && <span className='error-text'>{errors.password.message}</span>}
                                     </div>
                                     <div className="input-remember">
                                           <input type="checkbox" id="remember-me" /><label htmlFor="remember-me"
                                           >Remember me</label>
                                     </div>
-                                    <button type='submit' className="sign-in-button">Sign In</button>
+                                    <button  disabled={isSubmitting} type='submit' className="sign-in-button">
+                                          {isSubmitting ? "Loading ..." : "Sign In"}
+                                    </button>
                               </form>
                         </section>
 
