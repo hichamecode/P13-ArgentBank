@@ -1,3 +1,6 @@
+
+
+
 import './Login.scss';
 import Layout from '../components/Layout';
 import { useNavigate } from "react-router-dom";
@@ -26,6 +29,7 @@ function Login() {
   const onSubmit: SubmitHandler<FormFields> = async data => {
     try {
       const response = await fetch('http://localhost:3001/api/v1/user/login', {
+        
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -33,7 +37,13 @@ function Login() {
         body: JSON.stringify(data)
       });
 
+
+
       if (response.ok) {
+        const responseData = await response.json()
+        const token = responseData.body.token;
+        console.log(token, 'this is token')
+
         navigate('/login/profile');
       } else {
         const errorData = await response.json();
@@ -85,3 +95,6 @@ function Login() {
 }
 
 export default Login;
+
+
+
