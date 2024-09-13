@@ -15,5 +15,3 @@ function Feature( {imageSrc, imageName, title, text}: FeatureProps ) {
 }
 export default Feature;
 
-
-

@@ -1,66 +1,56 @@
-
-
-
 import './Login.scss';
 import Layout from '../components/Layout';
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { login } from '../global-state/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../global-state/store'; // Assurez-vous d'avoir ce type défini
+import CookieHandler from '../utils/CookieHandler';
 
 function Login() {
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { status, error } = useSelector((state: RootState) => state.auth);
 
-  // Schéma de validation Zod
   const schema = z.object({
     email: z.string().email({ message: 'The email format is invalid' }),
     password: z.string().min(8, { message: 'The password must be at least 8 characters long' })
   });
 
-  type FormFields = z.infer<typeof schema> & { generalError?: string }
+  type FormFields = z.infer<typeof schema>;
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm<FormFields>({
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<FormFields>({
     resolver: zodResolver(schema),
   });
 
-
-  const onSubmit: SubmitHandler<FormFields> = async data => {
+  const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/user/login', {
+      const resultAction = await dispatch(login(data));
+
+      if (login.fulfilled.match(resultAction)) {
+        const token = resultAction.payload;
         
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-
-
-
-      if (response.ok) {
-        const responseData = await response.json()
-        const token = responseData.body.token;
-        console.log(token, 'this is token')
-
+        CookieHandler.setCookie('authToken', token, 7); 
+        CookieHandler.getCookie('authToken');
         navigate('/login/profile');
-      } else {
-        const errorData = await response.json();
-        console.log(errorData);
-        setError('generalError', {
+
+      } else if (login.rejected.match(resultAction)) {
+
+        setError('root', { 
           type: 'manual',
-          message: errorData.message
+          message: resultAction.payload as string || 'An error occurred during login'
         });
       }
     } catch (error) {
-      console.error('An error occurred', error);
-      setError('generalError', {
+      console.error('An unexpected error occurred', error);
+      setError('root', {
         type: 'manual',
-        message: 'An error occurred. Please try again later.'
+        message: 'An unexpected error occurred. Please try again later.'
       });
     }
-  }
+  };
 
   return (
     <Layout>
@@ -83,11 +73,12 @@ function Login() {
               <input type="checkbox" id="remember-me" />
               <label htmlFor="remember-me">Remember me</label>
             </div>
-            <button disabled={isSubmitting} type='submit' className="sign-in-button">
-              {isSubmitting ? "Loading ..." : "Sign In"}
+            <button disabled={status === 'loading'} type='submit' className="sign-in-button">
+              {status === 'loading' ? "Loading ..." : "Sign In"}
             </button>
           </form>
-          {errors.generalError && <span className='error-text'>{errors.generalError.message}</span>}
+          {/* {errors.root && <span className='error-text'>{errors.root.message}</span>} */}
+          {error && <span className='error-text'>{error}</span>}
         </section>
       </main>
     </Layout>
@@ -95,6 +86,3 @@ function Login() {
 }
 
 export default Login;
-
-
-
