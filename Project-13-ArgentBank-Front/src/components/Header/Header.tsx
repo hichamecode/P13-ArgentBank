@@ -2,12 +2,12 @@ import './Header.scss'
 import argentBankLogo from '../../assets/img/argentBankLogo.png'
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearToken } from '../../global-state/authSlice';
+import { clearToken, stateType } from '../../global-state/authSlice';
 import CookieHandler from '../../utils/CookieHandler';
 
 function Header() {
-      const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-      const firstName = useSelector((state) => state.auth.firstName)
+      const isAuthenticated = useSelector((state: stateType) => state.auth.isAuthenticated);
+      const firstName = useSelector((state: stateType) => state.auth.firstName)
       const dispatch = useDispatch();
       const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ function Header() {
                 <nav className='header-nav'>
                   {isAuthenticated ? (
                         <>
-                              <Link className='header-nav' to={window.location.pathname.includes('login/profile') ? '' : 'login/profile'}>
+                              <Link className='header-nav' to='/profile'>
                                     <i className="fa fa-user-circle header-nav-text"></i>
                                     <p className='header-nav-text'>{firstName === '' ? <span>User</span> : <span>{firstName}</span>}</p>
                               </Link>
@@ -47,4 +47,3 @@ function Header() {
 }
 
 export default Header;
-

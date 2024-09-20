@@ -1,0 +1,141 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: ArgentBank API Transactions
+  description: This API documentation contains all the endpoints for handling user transactions
+  contact:
+    name: Hichame Belyazid
+    email: hichame.code@gmail.com
+host: localhost:3001
+basePath: "/api/v1"
+schemes:
+  - https
+paths:
+  /transactions:
+    get:
+      tags:
+        - User Transactions
+      summary: Fetch all transactions
+      description: Fetching all the user's banking transactions
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+        '404':
+          description: No transactions found
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - User Transactions
+      summary: Create a new transaction
+      description: Creates a new banking transaction
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/NewTransaction'
+      responses:
+        '200':
+          description: Transaction created successfully
+          schema:
+            $ref: '#/definitions/Transaction'
+        '500':
+          description: Internal server error
+  /transactions/{id}:
+    get:
+      tags:
+        - User Transactions
+      summary: Fetch a specific transaction
+      description: Fetching of a transaction using its id
+      parameters:
+        - name: id
+          in: path
+          description: id of the transaction to retrieve
+          required: true
+          type: number
+          format: number
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          schema:
+            $ref: '#/definitions/Transaction'
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - User Transactions
+      summary: Update a transaction
+      description: changing the category or additional notes for example
+      parameters:
+        - name: id
+          in: path
+          description: ID of the transaction to update
+          required: true
+          type: integer
+          format: number
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionUpdate'
+      responses:
+        '200':
+          description: Transaction updated successfully
+          schema:
+            $ref: '#/definitions/Transaction'
+        '404':
+          description: Transaction not found
+        '500':
+          description: Internal server error
+definitions:
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: number
+        format: number
+      amount:
+        type: number
+        format: number
+      date:
+        type: string
+        format: string
+      description:
+        type: string
+      category:
+        type: string
+      notes:
+        type: string
+      from:
+        type: string
+        description: Source account of the transaction
+      to:
+        type: string
+        description: Destination account of the transaction
+  TransactionUpdate:
+    type: object
+    properties:
+      category:
+        type: string
+      notes:
+        type: string
+  NewTransaction:
+    type: object
+    properties:
+      amount:
+        type: number
+        format: number
+      description:
+        type: string
+      from:
+        type: string
+        description: Source account of the transaction
+      to:
+        type: string
+        description: Destination account of the transaction

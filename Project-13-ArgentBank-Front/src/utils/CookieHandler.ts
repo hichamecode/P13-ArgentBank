@@ -18,7 +18,6 @@ class CookieHandler {
     // (24*60*60*1k) nombre de millisecondes dans un jour 
     const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString(); // Calcul de la date d'expiration
     document.cookie = `${name}=${token}; expires=${expires}; path=/`;
-    console.log('document.cookie', document.cookie)
   }
 
   static eraseCookie(name: string) {

@@ -1,12 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface AuthState {
+export interface AuthState {
     token: string | null;
     isAuthenticated: boolean;
     firstName: string;
     lastName: string;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
+}
+
+export type stateType = {
+    auth: AuthState
 }
 
 const initialState: AuthState = {
@@ -31,8 +35,6 @@ export const login = createAsyncThunk(
                 body: JSON.stringify(credentials)
             });
 
-            console.log("response for login: ", response)
-
             if (!response.ok) {
                 const errorData = await response.json();
                 return rejectWithValue(errorData.message);
@@ -42,6 +44,41 @@ export const login = createAsyncThunk(
             return responseData.body.token;
         } catch (error) {
             return rejectWithValue('An error occurred. Please try again later.');
+        }
+    }
+);
+
+// createAsyncThunk to fetch firstName and lastName of the user
+export const fetchUserName = createAsyncThunk(
+    'auth/fetchUserName', 
+    async (userData, { getState, rejectWithValue }) => {
+        try {
+            const state = getState() as { auth: AuthState };
+            const token = state.auth.token;
+
+            if (!token) {
+                return rejectWithValue('No token available');
+            }
+
+            const response = await fetch("http://localhost:3001/api/v1/user/profile", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify( userData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                return rejectWithValue(errorData.message);
+            }
+
+            const responseData = await response.json();
+
+            return responseData.body;
+        } catch (error) {
+            return rejectWithValue('An error occurred while fetching the user name. Please try again later.');
         }
     }
 );
@@ -62,7 +99,6 @@ export const updateName = createAsyncThunk(
                 },
                 body: JSON.stringify({ firstName, lastName }),
             });
-            console.log('response for updateName: ', response)
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -70,7 +106,6 @@ export const updateName = createAsyncThunk(
             }
 
             const responseData = await response.json();
-            console.log('new name', responseData.body)
 
             return responseData.body;
         } catch (error) {
@@ -117,20 +152,32 @@ const authSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload as string;
             })
-            .addCase(updateName.pending, (state) => {
+            .addCase(fetchUserName.pending, (state) => {
                 state.status = 'loading';
-                state.error = null;
             })
-            .addCase(updateName.fulfilled, (state, action) => {
+            .addCase(fetchUserName.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.firstName = action.payload.firstName;
                 state.lastName = action.payload.lastName;
+            })
+            .addCase(fetchUserName.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+            })
+            .addCase(updateName.pending, (state) => {
+                state.status = 'loading';
                 state.error = null;
             })
             .addCase(updateName.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload as string;
-            });
+            })
+            .addCase(updateName.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.firstName = action.payload.firstName;
+                state.lastName = action.payload.lastName;
+                state.error = null; 
+            })
     }
 });
 

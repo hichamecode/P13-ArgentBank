@@ -1,15 +1,15 @@
 
 import './Account.scss'
 
-type AccountProps = {title: string, amount: number, description: string}
+type AccountProps = {title: string, amount: number, currency: string,  description: string}
 
-function Account( {title, amount, description}: AccountProps)  {
+function Account( {title, amount, currency, description}: AccountProps)  {
 
       return (
             <section className="account">
             <div className="account-content-wrapper">
               <h3 className="account-title">{title}</h3>
-              <p className="account-amount">{amount}</p>
+              <p className="account-amount">{currency}{amount}</p>
               <p className="account-amount-description">{description}</p>
             </div>
             <div className="account-content-wrapper cta">

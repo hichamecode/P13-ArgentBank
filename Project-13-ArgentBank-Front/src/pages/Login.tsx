@@ -6,8 +6,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { login } from '../global-state/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../global-state/store'; // Assurez-vous d'avoir ce type défini
+import { RootState } from '../global-state/store'; 
 import CookieHandler from '../utils/CookieHandler';
+
 
 function Login() {
   const dispatch = useDispatch();
@@ -34,7 +35,7 @@ function Login() {
         
         CookieHandler.setCookie('authToken', token, 7); 
         CookieHandler.getCookie('authToken');
-        navigate('/login/profile');
+        navigate('/profile');
 
       } else if (login.rejected.match(resultAction)) {
 
@@ -77,7 +78,6 @@ function Login() {
               {status === 'loading' ? "Loading ..." : "Sign In"}
             </button>
           </form>
-          {/* {errors.root && <span className='error-text'>{errors.root.message}</span>} */}
           {error && <span className='error-text'>{error}</span>}
         </section>
       </main>
