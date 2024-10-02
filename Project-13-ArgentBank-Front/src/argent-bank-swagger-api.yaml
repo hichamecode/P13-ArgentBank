@@ -10,6 +10,13 @@ host: localhost:3001
 basePath: "/api/v1"
 schemes:
   - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - Bearer: []
 paths:
   /transactions:
     get:
@@ -17,6 +24,17 @@ paths:
         - User Transactions
       summary: Fetch all transactions
       description: Fetching all the user's banking transactions
+      parameters:
+        - name: month
+          in: query
+          description: Filter transactions by month (YYYY-MM)
+          required: false
+          type: string
+        - name: account
+          in: query
+          description: Filter transactions by account ID
+          required: false
+          type: string
       responses:
         '200':
           description: Transactions retrieved successfully
@@ -24,8 +42,8 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Transaction'
-        '404':
-          description: No transactions found
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
         '500':
           description: Internal server error
     post:
@@ -43,6 +61,8 @@ paths:
           description: Transaction created successfully
           schema:
             $ref: '#/definitions/Transaction'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
         '500':
           description: Internal server error
   /transactions/{id}:
@@ -63,6 +83,10 @@ paths:
           description: Transaction retrieved successfully
           schema:
             $ref: '#/definitions/Transaction'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '403':
+          description: Forbidden - Access to this transaction is not allowed
         '404':
           description: Transaction not found
         '500':
@@ -89,6 +113,10 @@ paths:
           description: Transaction updated successfully
           schema:
             $ref: '#/definitions/Transaction'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '403':
+          description: Forbidden - Access to this transaction is not allowed
         '404':
           description: Transaction not found
         '500':
