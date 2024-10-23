@@ -1,53 +1,50 @@
-import './Profile.scss'
+import './Profile.scss';
 import Account from '../components/Account';
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { stateType, updateName, fetchUserName } from '../global-state/authSlice';
 
-function Profile() {
-    const dispatch = useDispatch()
-    const firstName = useSelector((state: stateType) => state.auth.firstName)
-    const lastName = useSelector((state: stateType) => state.auth.lastName)
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [localFirstName, setLocalFirstName] = useState(firstName)
-    const [localLastName, setLocalLastName] = useState(lastName)
+export default function Profile() {
+    const dispatch = useDispatch();
+    const firstName = useSelector((state: stateType) => state.auth.firstName);
+    const lastName = useSelector((state: stateType) => state.auth.lastName);
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [localFirstName, setLocalFirstName] = useState(firstName);
+    const [localLastName, setLocalLastName] = useState(lastName);
 
     useEffect(() => {
-      dispatch(fetchUserName())
-  }, [dispatch])
+        dispatch(fetchUserName());
+    }, [dispatch]);
 
-  useEffect(() => {
-      setLocalFirstName(firstName)
-      setLocalLastName(lastName)
-  }, [firstName, lastName])
-
+    useEffect(() => {
+        setLocalFirstName(firstName);
+        setLocalLastName(lastName);
+    }, [firstName, lastName]);
 
     const handleOpenModal = () => {
-      setLocalFirstName(firstName)
-      setLocalLastName(lastName)
-        setIsModalOpen(true)
-    }
+        setLocalFirstName(firstName);
+        setLocalLastName(lastName);
+        setIsModalOpen(true);
+    };
 
     const handleCloseModal = () => {
-        setLocalFirstName(firstName)
-        setLocalLastName(lastName)
-        setIsModalOpen(false)
-
-    }
+        setIsModalOpen(false);
+    };
 
     const handleChangeName = (event: React.FormEvent) => {
-        event.preventDefault()
+        event.preventDefault();
         dispatch(updateName({ firstName: localFirstName, lastName: localLastName }))
             .then(() => {
                 setIsModalOpen(false);
             })
             .catch(error => {
                 console.error("Failed to update name:", error);
-                setLocalFirstName(firstName)
-                setLocalLastName(lastName)
+                setLocalFirstName(firstName);
+                setLocalLastName(lastName);
             });
-    }
+    };
 
     return (
         <Layout>
@@ -67,12 +64,14 @@ function Profile() {
                     title='Argent Bank Savings (x6712)'
                     amount={10928.42}
                     currency='$'
-                    description='Available Balance' />
+                    description='Available Balance'
+                />
                 <Account
-                    title='Argent Bank Credit Card(x8349)'
+                    title='Argent Bank Credit Card (x8349)'
                     amount={184.30}
                     currency='$'
-                    description='Current Balance' />
+                    description='Current Balance'
+                />
             </main>
 
             {isModalOpen && (
@@ -111,11 +110,5 @@ function Profile() {
                 </div>
             )}
         </Layout>
-    )
+    );
 }
-
-export default Profile;
-
-
-
-
